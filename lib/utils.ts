@@ -1,4 +1,4 @@
-import { techMap } from "@/constants/texhMap";
+import { techMap } from "@/constants/techMap";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -6,10 +6,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const getDeviconClassName = (techName: string) => {
-  const normalized = techName.replace(/[ .]/g, "").toLowerCase();
+export function getDeviconClassName(techName: string) {
+  const normalizedTech = techName.replace(/[ .]/g, "").toLowerCase();
 
-  // const techMap: Record<string, string> = {
+  // Dictionary mapping possible technology names to Devicon class names
+  // const techMap: { [key: string]: string } = {
   //   // JavaScript variations
   //   javascript: "devicon-javascript-plain",
   //   js: "devicon-javascript-plain",
@@ -89,10 +90,8 @@ export const getDeviconClassName = (techName: string) => {
   //   tailwindcss: "devicon-tailwindcss-original",
   // };
 
-  return techMap[normalized]
-    ? techMap[normalized] + " colored"
-    : "devicon-devicon-plain";
-};
+  return `${techMap[normalizedTech] || "devicon-devicon-plain"} colored`;
+}
 
 export const getTimeStamp = (createdAt: Date): string => {
   const date = new Date(createdAt);
