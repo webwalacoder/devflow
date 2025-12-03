@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { RequestError, ValidationError } from "../http-errors";
 import { ZodError } from "zod";
 import logger from "../logger";
+import { parseZodErrors } from "../utils";
 
 export type ResponseType = "api" | "server";
 
@@ -40,15 +41,7 @@ const handleError = (error: unknown, responseType: ResponseType = "server") => {
   }
 
   if (error instanceof ZodError) {
-    const formatted = error.format();
-
-    const fieldErrors: Record<string, string[]> = {};
-
-    for (const [field, value] of Object.entries(formatted)) {
-      if (field === "_errors") continue;
-      fieldErrors[field] = value._errors ?? [];
-    }
-
+    const fieldErrors = parseZodErrors(error);
     const validationError = new ValidationError(fieldErrors);
 
     logger.error(
