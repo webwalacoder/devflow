@@ -4,7 +4,6 @@ import { ValidationError } from "@/lib/http-errors";
 import dbConnect from "@/lib/mongoose";
 import { parseZodErrors } from "@/lib/utils";
 import { UserSchema } from "@/lib/validations";
-import { APIErrorResponse } from "@/types/global";
 import { NextResponse } from "next/server";
 
 export async function GET() {

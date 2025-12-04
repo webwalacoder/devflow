@@ -3,7 +3,6 @@ import handleError from "@/lib/handlers/error";
 import { NotFoundError, ValidationError } from "@/lib/http-errors";
 import { parseZodErrors } from "@/lib/utils";
 import { UserSchema } from "@/lib/validations";
-import { APIErrorResponse } from "@/types/global";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
