@@ -56,7 +56,32 @@ const RootLayout = async ({
           >
             {children}
           </ThemeProvider>
-          <Toaster position="top-center" />
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              duration: 5000,
+              removeDelay: 1000,
+              style: {
+                padding: "16px",
+                borderRadius: "8px",
+                fontFamily: "Inter, sans-serif",
+                fontSize: "16px",
+                boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
+                color: "#fff",
+                background: "#212734",
+              },
+              success: {
+                style: {
+                  background: "#044607",
+                },
+              },
+              error: {
+                style: {
+                  background: "#460407",
+                },
+              },
+            }}
+          />
         </body>
       </SessionProvider>
     </html>
