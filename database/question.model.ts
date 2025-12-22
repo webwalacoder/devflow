@@ -15,7 +15,7 @@ const QuestionSchema = new Schema<IQuestion>(
   {
     title: { type: String, required: true },
     content: { type: String, required: true },
-    tags: [{ type: Schema.Types.ObjectId, ref: "Tags" }],
+    tags: [{ type: Schema.Types.ObjectId, ref: "Tag" }],
     views: { type: Number, default: 0 },
     upvotes: { type: Number, default: 0 },
     downvotes: { type: Number, default: 0 },
