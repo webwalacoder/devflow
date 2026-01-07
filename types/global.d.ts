@@ -15,7 +15,7 @@ declare global {
   interface Question {
     _id: string;
     title: string;
-    description: string;
+    content: string;
     tags: Tag[];
     author: Author;
     createdAt: Date;

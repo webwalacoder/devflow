@@ -23,6 +23,7 @@ async function action<T>({
   schema,
   authorize = false,
 }: ActionOptions<T>) {
+  // 1.
   if (schema && params) {
     try {
       schema.parse(params);
@@ -36,6 +37,7 @@ async function action<T>({
     }
   }
 
+  // 2.
   let session: Session | null = null;
 
   if (authorize) {
@@ -46,8 +48,10 @@ async function action<T>({
     }
   }
 
+  // 3.
   await dbConnect();
 
+  // 4.
   return { params, session };
 }
 
