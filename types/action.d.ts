@@ -37,6 +37,10 @@ declare global {
   > {
     tagId: string;
   }
+
+  interface IncrementViewsParams {
+    questionId: string;
+  }
 }
 
 export {};
