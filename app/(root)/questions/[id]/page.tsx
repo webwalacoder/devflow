@@ -7,16 +7,16 @@ import { getQuestion, incrementViews } from "@/lib/actions/question.action";
 import { formatNumber, getTimeStamp } from "@/lib/utils";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 
 const questionDetails = async ({ params }: RouteParams) => {
   const { id } = await params;
+  const { success, data: question } = await getQuestion({ questionId: id });
 
-  // Parallel Requests (only if the requests are not related i.e one request return parameter for other request) to avoid request waterfall...
-  // (can still lead to challenges like slower requests, blocking RenderingMode, increase server load, error handling complexity or race conditions)
-  const [_, { success, data: question }] = await Promise.all([
-    await incrementViews({ questionId: id }),
-    await getQuestion({ questionId: id }),
-  ]);
+  // Increment views asynchronously after response without blocking UX
+  after(async () => {
+    await incrementViews({ questionId: id });
+  });
 
   if (!success || !question) return redirect("/404");
 
