@@ -13,8 +13,6 @@ import {
 import mongoose, { QueryFilter } from "mongoose";
 import Tag, { ITagDoc } from "@/database/tag.model";
 import TagQuestion from "@/database/tag-question.model";
-import { revalidatePath } from "next/cache";
-import ROUTES from "@/constants/routes";
 
 export async function createQuestion(
   params: CreateQuestionParams,
@@ -312,8 +310,6 @@ export async function incrementViews(
     question.views += 1;
 
     await question.save();
-
-    revalidatePath(ROUTES.QUESTION(questionId));
 
     return {
       success: true,
