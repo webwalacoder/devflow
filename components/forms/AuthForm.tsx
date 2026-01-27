@@ -3,13 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  DefaultValues,
-  FieldValues,
-  Path,
-  SubmitHandler,
-  useForm,
-} from "react-hook-form";
+import { SubmitHandler, useForm, Path } from "react-hook-form";
 import { z, ZodType } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -25,14 +19,14 @@ import { Input } from "@/components/ui/input";
 import ROUTES from "@/constants/routes";
 import { toast } from "react-hot-toast";
 
-interface AuthFormProps<T extends FieldValues> {
-  schema: ZodType<T>;
-  defaultValues: T;
-  onSubmit: (data: T) => Promise<ActionResponse>;
+interface AuthFormProps<T extends ZodType<any, any>> {
+  schema: T;
+  defaultValues: z.infer<T>;
+  onSubmit: (data: z.infer<T>) => Promise<ActionResponse>;
   formType: "SIGN_IN" | "SIGN_UP";
 }
 
-const AuthForm = <T extends FieldValues>({
+const AuthForm = <T extends ZodType<any, any>>({
   schema,
   defaultValues,
   formType,
@@ -40,13 +34,15 @@ const AuthForm = <T extends FieldValues>({
 }: AuthFormProps<T>) => {
   const router = useRouter();
 
-  const form = useForm<z.infer<typeof schema>>({
-    resolver: zodResolver(schema),
-    defaultValues: defaultValues as DefaultValues<T>,
+  type FormValues = z.infer<T>;
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(schema) as any,
+    defaultValues,
   });
 
-  const handleSubmit: SubmitHandler<T> = async (data) => {
-    const result = (await onSubmit(data)) as ActionResponse;
+  const handleSubmit: SubmitHandler<FormValues> = async (data) => {
+    const result = await onSubmit(data);
 
     if (result?.success) {
       toast.success(
@@ -57,21 +53,18 @@ const AuthForm = <T extends FieldValues>({
               ? "Signed in successfully"
               : "Signed up successfully"}
           </p>
-        </div>
+        </div>,
       );
-
       router.push(ROUTES.HOME);
     } else {
-      const title = `Error ${result?.status}`;
-      const description = result?.error?.message ?? "Something went wrong";
       toast.error(
         <div>
-          <p className="font-semibold">{title}</p>
-          <p className="text-sm opacity-80">{description}</p>
+          <p className="font-semibold">Error {result?.status}</p>
+          <p className="text-sm opacity-80">
+            {result?.error?.message ?? "Something went wrong"}
+          </p>
         </div>,
-        {
-          duration: Infinity,
-        }
+        { duration: Infinity },
       );
     }
   };
@@ -88,7 +81,7 @@ const AuthForm = <T extends FieldValues>({
           <FormField
             key={field}
             control={form.control}
-            name={field as Path<T>}
+            name={field as Path<FormValues>}
             render={({ field }) => (
               <FormItem className="flex w-full flex-col gap-2.5">
                 <FormLabel className="paragraph-medium text-dark400_light700">
@@ -116,7 +109,7 @@ const AuthForm = <T extends FieldValues>({
         >
           {form.formState.isSubmitting
             ? buttonText === "Sign In"
-              ? "Signin In..."
+              ? "Signing In..."
               : "Signing Up..."
             : buttonText}
         </Button>
