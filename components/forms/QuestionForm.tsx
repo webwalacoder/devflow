@@ -26,7 +26,6 @@ import { createQuestion, editQuestion } from "@/lib/actions/question.action";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import ROUTES from "@/constants/routes";
-import { ObjectId } from "mongoose";
 
 const Editor = dynamic(() => import("@/components/editor"), {
   // Make sure we turn SSR off
