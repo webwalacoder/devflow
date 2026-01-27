@@ -26,6 +26,7 @@ import { createQuestion, editQuestion } from "@/lib/actions/question.action";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import ROUTES from "@/constants/routes";
+import { ObjectId } from "mongoose";
 
 const Editor = dynamic(() => import("@/components/editor"), {
   // Make sure we turn SSR off
@@ -53,7 +54,7 @@ const QuestionForm = ({ question, isEdit = false }: Props) => {
 
   const handleInputKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
-    field: { value: string[] }
+    field: { value: string[] },
   ) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -91,7 +92,7 @@ const QuestionForm = ({ question, isEdit = false }: Props) => {
   };
 
   const handleCreateQuestion = async (
-    data: z.infer<typeof AskQuestionSchema>
+    data: z.infer<typeof AskQuestionSchema>,
   ) => {
     startTransition(async () => {
       if (isEdit && question) {
@@ -107,10 +108,11 @@ const QuestionForm = ({ question, isEdit = false }: Props) => {
               <p className="text-sm opacity-80">
                 Question updated successfully
               </p>
-            </div>
+            </div>,
           );
 
-          if (result.data) router.push(ROUTES.QUESTION(result.data._id));
+          if (result.data)
+            router.push(ROUTES.QUESTION(result.data._id.toString()));
         } else {
           const title = `Error ${result.status}`;
           const description = result.error?.message || "Something went wrong";
@@ -118,7 +120,7 @@ const QuestionForm = ({ question, isEdit = false }: Props) => {
             <div>
               <p className="font-semibold">{title}</p>
               <p className="text-sm opacity-80">{description}</p>
-            </div>
+            </div>,
           );
         }
 
@@ -132,7 +134,7 @@ const QuestionForm = ({ question, isEdit = false }: Props) => {
           <div>
             <p className="font-semibold">Success</p>
             <p className="text-sm opacity-80">Question created successfully</p>
-          </div>
+          </div>,
         );
 
         if (result.data) router.push(ROUTES.QUESTION(result.data._id));
@@ -143,7 +145,7 @@ const QuestionForm = ({ question, isEdit = false }: Props) => {
           <div>
             <p className="font-semibold">{title}</p>
             <p className="text-sm opacity-80">{description}</p>
-          </div>
+          </div>,
         );
       }
     });
