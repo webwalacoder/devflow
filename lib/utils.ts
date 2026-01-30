@@ -178,3 +178,85 @@ export const formatNumber = (number: number) => {
     return number.toString();
   }
 };
+
+// Allowed languages mapping for MDXEditor
+const ALLOWED_LANGUAGES: Record<string, string> = {
+  js: "js",
+  javascript: "js",
+  ts: "ts",
+  typescript: "ts",
+  jsx: "jsx",
+  tsx: "tsx",
+  html: "html",
+  css: "css",
+  scss: "scss",
+  saas: "saas",
+  bash: "bash",
+  json: "json",
+  txt: "txt",
+  text: "txt",
+  "": "", // empty for unspecified
+};
+
+export function normalizeHeadings(md: string) {
+  return (
+    md
+      // Remove Setext underline headings (==== / ----)
+      .replace(/^[=-]{3,}$/gm, "")
+      // Convert bold-only headings to h2
+      .replace(/^\*\*(.+?)\*\*$/gm, "## $1")
+  );
+}
+
+export function normalizeCodeBlocks(md: string) {
+  const fenceCount = (md.match(/```/g) || []).length;
+
+  // If odd, close the last block
+  if (fenceCount % 2 !== 0) {
+    return md + "\n```";
+  }
+
+  return md;
+}
+
+export function stripMDX(md: string) {
+  return (
+    md
+      // Remove JSX-like tags
+      .replace(/<[^>]+>/g, "")
+      // Remove MDX imports/exports
+      .replace(/^(import|export).+$/gm, "")
+  );
+}
+
+export function cleanupMarkdown(md: string) {
+  return md
+    .replace(/\n{3,}/g, "\n\n") // normalize spacing
+    .trim();
+}
+
+/**
+ * Sanitize fenced code block languages for MDXEditor
+ */
+export function sanitizeCodeBlockLanguages(md: string) {
+  return md.replace(/```(\w*)/g, (_, lang) => {
+    const cleanedLang = lang.toLowerCase();
+    const safeLang = ALLOWED_LANGUAGES[cleanedLang] ?? "";
+    return `\`\`\`${safeLang}`;
+  });
+}
+
+/**
+ * Fully safe MDX transformation
+ */
+export function toSafeMDX(markdown: string) {
+  let safe = markdown;
+
+  safe = normalizeHeadings(safe);
+  safe = normalizeCodeBlocks(safe);
+  safe = stripMDX(safe);
+  safe = sanitizeCodeBlockLanguages(safe);
+  safe = cleanupMarkdown(safe);
+
+  return safe;
+}

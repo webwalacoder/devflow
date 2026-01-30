@@ -12,10 +12,10 @@ function isError(error: unknown): error is Error {
 
 export async function fetchHandler<T>(
   url: string,
-  options: FetchOptions = {}
+  options: FetchOptions = {},
 ): Promise<ActionResponse<T>> {
   const {
-    timeout = 5000,
+    timeout = 10000,
     headers: customHeaders = {},
     ...restOptions
   } = options;
