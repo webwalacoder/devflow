@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 "use server";
-=======
-"user server";
->>>>>>> c09ae9052af6c0051b867f5083e9d4f723ffe249
 
 import { User } from "@/database";
 import action from "../handlers/action";
