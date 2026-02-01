@@ -67,6 +67,10 @@ declare global {
     hasUpVoted: boolean;
     hasDownVoted: boolean;
   }
+
+  interface CollectionBaseParams {
+    questionId: string;
+  }
 }
 
 export {};
