@@ -86,6 +86,10 @@ declare global {
   interface GetUserAnswersParams extends PaginatedSearchParams {
     userId: string;
   }
+
+  interface GetUserTagsParams {
+    userId: string;
+  }
 }
 
 export {};
