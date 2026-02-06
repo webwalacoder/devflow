@@ -90,6 +90,10 @@ declare global {
   interface GetUserTagsParams {
     userId: string;
   }
+
+  interface DeleteQuestionParams {
+    questionId: string;
+  }
 }
 
 export {};
