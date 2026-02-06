@@ -1,3 +1,5 @@
+"use server";
+
 import Interaction, { IInteractionDoc } from "@/database/interaction.model";
 import action from "../handlers/action";
 import { CreateInteractionSchema } from "../validations";
@@ -88,7 +90,7 @@ export async function updateReputation(params: UpdateReputationParams) {
   if (performerId === authorId) {
     await User.findByIdAndUpdate(
       performerId,
-      { $inC: { reputation: authorPoints } },
+      { $inc: { reputation: authorPoints } },
       { session },
     );
 

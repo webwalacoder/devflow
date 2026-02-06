@@ -49,8 +49,6 @@ const questionDetails = async ({ params, searchParams }: RouteParams) => {
     questionId: question._id,
   });
 
-  console.log("Answers:", answersResult);
-
   const { author, createdAt, answers, views, tags, content, title } = question;
 
   return (
