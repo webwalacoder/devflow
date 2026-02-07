@@ -5,6 +5,7 @@ import {
   getUser,
   getUserAnswers,
   getUserQuestions,
+  getUserStats,
   getUserTopTags,
 } from "@/lib/actions/user.action";
 import { notFound } from "next/navigation";
@@ -33,11 +34,18 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
   if (!success)
     return (
       <div>
-        <div className="h1-bold text-dark100_light900">{error?.message}</div>
+        <div className="flex flex-col items-center justify-center gap-4">
+          <h1 className="h1-bold text--dark100_light900">User not found</h1>
+          <p className="paragraph-regular text-dark200_light800 max-w-md">
+            {error?.message}
+          </p>
+        </div>
       </div>
     );
 
-  const { user, totalQuestions, totalAnswers } = data!;
+  const { user } = data!;
+
+  const { data: userStats } = await getUserStats({ userId: id });
 
   const {
     success: userQuestionsSuccess,
@@ -130,13 +138,9 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
       </section>
 
       <Stats
-        totalQuestions={totalQuestions}
-        totalAnswers={totalAnswers}
-        badges={{
-          GOLD: 0,
-          SILVER: 0,
-          BRONZE: 0,
-        }}
+        totalQuestions={userStats?.totalQuestions || 0}
+        totalAnswers={userStats?.totalAnswers || 0}
+        badges={userStats?.badges || { GOLD: 0, SILVER: 0, BRONZE: 0 }}
         reputationPoints={user.reputation || 0}
       />
 
