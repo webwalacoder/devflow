@@ -11,14 +11,15 @@ import {
   IncrementViewsSchema,
   PaginatedSearchParamsSchema,
 } from "../validations";
-import mongoose, { QueryFilter } from "mongoose";
+import mongoose, { QueryFilter, Types } from "mongoose";
 import Tag, { ITagDoc } from "@/database/tag.model";
 import TagQuestion from "@/database/tag-question.model";
 import dbConnect from "../mongoose";
-import { Answer, Collection, Vote } from "@/database";
+import { Answer, Collection, Interaction, Vote } from "@/database";
 import { revalidatePath } from "next/cache";
 import { createInteraction } from "./interaction.action";
 import { after } from "next/server";
+import { auth } from "@/auth";
 
 export async function createQuestion(
   params: CreateQuestionParams,
@@ -235,6 +236,62 @@ export async function getQuestion(
 
 // It's a direct Invocation. When you use a Server Action in a Server Component. you're directly calling the function on the server. There's no HTTP request involved at all because both the Server Component and the Server Actions are executing in the same server environment.
 
+export async function getRecommendedQuestions({
+  userId,
+  query,
+  skip,
+  limit,
+}: RecommendationParams) {
+  const interactions = await Interaction.find({
+    user: new Types.ObjectId(userId),
+    actionType: "question",
+    action: { $in: ["view", "upvote", "bookmark", "post"] },
+  })
+    .sort({ createdAt: -1 })
+    .limit(50)
+    .lean();
+
+  const interactedQuestionIds = interactions.map((i) => i.actionId);
+
+  const interactedQuestions = await Question.find({
+    _id: { $in: interactedQuestionIds },
+  }).select("tags");
+
+  const allTags = interactedQuestions.flatMap((q) =>
+    q.tags.map((tag: Types.ObjectId) => tag.toString()),
+  );
+
+  const uniqueTagIds = [...new Set(allTags)];
+
+  const recommendedQuery: QueryFilter<typeof Question> = {
+    _id: { $nin: interactedQuestionIds },
+    author: { $ne: new Types.ObjectId(userId) },
+    tags: { $in: uniqueTagIds.map((id) => new Types.ObjectId(id)) },
+  };
+
+  if (query) {
+    recommendedQuery.$or = [
+      { title: { $regex: query, options: "i" } },
+      { content: { $regex: query, options: "i" } },
+    ];
+  }
+
+  const total = await Question.countDocuments(recommendedQuery);
+
+  const questions = await Question.find(recommendedQuery)
+    .populate("tags", "name")
+    .populate("author", "name image")
+    .sort({ upvotes: -1, views: -1 })
+    .skip(skip)
+    .limit(limit)
+    .lean();
+
+  return {
+    questions: JSON.parse(JSON.stringify(questions)),
+    isNext: total > skip + questions.length,
+  };
+}
+
 export async function getQuestions(
   params: PaginatedSearchParams,
 ): Promise<ActionResponse<{ questions: Question[]; isNext: boolean }>> {
@@ -253,35 +310,51 @@ export async function getQuestions(
 
   const queryFilter: QueryFilter<typeof Question> = {};
 
-  if (filter === "recommended")
-    return { success: true, data: { questions: [], isNext: false } };
-
-  if (query) {
-    queryFilter.$or = [
-      { title: { $regex: new RegExp(query, "i") } },
-      { content: { $regex: new RegExp(query, "i") } },
-    ];
-  }
-
-  let sortCriteria = {};
-
-  switch (filter) {
-    case "newest":
-      sortCriteria = { createdAt: -1 };
-      break;
-    case "unanswered":
-      queryFilter.answers = 0;
-      sortCriteria = { createdAt: -1 };
-      break;
-    case "popular":
-      sortCriteria = { upvotes: -1 };
-      break;
-    default:
-      sortCriteria = { createdAt: -1 };
-      break;
-  }
-
   try {
+    // Recommendations
+    if (filter === "recommended") {
+      const session = await auth();
+      const userId = session?.user?.id;
+
+      if (!userId) {
+        return { success: true, data: { questions: [], isNext: false } };
+      }
+
+      const recommended = await getRecommendedQuestions({
+        userId,
+        query,
+        skip,
+        limit,
+      });
+
+      return { success: true, data: recommended };
+    }
+
+    if (query) {
+      queryFilter.$or = [
+        { title: { $regex: new RegExp(query, "i") } },
+        { content: { $regex: new RegExp(query, "i") } },
+      ];
+    }
+
+    let sortCriteria = {};
+
+    switch (filter) {
+      case "newest":
+        sortCriteria = { createdAt: -1 };
+        break;
+      case "unanswered":
+        queryFilter.answers = 0;
+        sortCriteria = { createdAt: -1 };
+        break;
+      case "popular":
+        sortCriteria = { upvotes: -1 };
+        break;
+      default:
+        sortCriteria = { createdAt: -1 };
+        break;
+    }
+
     const totalQuestions = await Question.countDocuments(queryFilter);
 
     const questions = await Question.find(queryFilter)
