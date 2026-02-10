@@ -90,8 +90,8 @@ declare global {
     BRONZE: number;
   }
 
-  interface Jobs {
-    id?: string;
+  interface Job {
+    id: string;
     employer_name?: string;
     employer_logo?: string | undefined;
     employer_website?: string;
