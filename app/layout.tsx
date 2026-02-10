@@ -57,7 +57,7 @@ const RootLayout = async ({
             {children}
           </ThemeProvider>
           <Toaster
-            position="bottom-right"
+            position="top-center"
             toastOptions={{
               duration: 5000,
               removeDelay: 1000,
