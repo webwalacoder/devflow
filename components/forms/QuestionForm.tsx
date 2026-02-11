@@ -32,12 +32,12 @@ const Editor = dynamic(() => import("@/components/editor"), {
   ssr: false,
 });
 
-interface Props {
+interface Params {
   question?: Question;
   isEdit?: boolean;
 }
 
-const QuestionForm = ({ question, isEdit = false }: Props) => {
+const QuestionForm = ({ question, isEdit = false }: Params) => {
   const router = useRouter();
   const editorRef = useRef<MDXEditorMethods>(null);
   const [isPending, startTransition] = useTransition();
@@ -190,7 +190,7 @@ const QuestionForm = ({ question, isEdit = false }: Props) => {
               <FormControl>
                 <Editor
                   value={field.value}
-                  editorRef={editorRef}
+                  ref={editorRef}
                   fieldChange={field.onChange}
                 />
               </FormControl>
@@ -252,7 +252,7 @@ const QuestionForm = ({ question, isEdit = false }: Props) => {
             {isPending ? (
               <>
                 <ReloadIcon className="mr-2 size-4 animate-spin" />
-                <span>Submitting</span>
+                <span>Submitting...</span>
               </>
             ) : (
               <>{isEdit ? "Edit" : "Ask a Question"}</>

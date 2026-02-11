@@ -9,6 +9,7 @@ import {
   GetUserSchema,
   PaginatedSearchParamsSchema,
   GetUserTagsSchema,
+  UpdateUserSchema,
 } from "../validations";
 import { PipelineStage, QueryFilter, Types } from "mongoose";
 import { assignBadges } from "../utils";
@@ -304,6 +305,35 @@ export async function getUserStats(params: GetUserParams): Promise<
         totalAnswers: answerStats.count,
         badges,
       },
+    };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function updateUser(
+  params: UpdateUserParams,
+): Promise<ActionResponse<{ user: User }>> {
+  const validationResult = await action({
+    params,
+    schema: UpdateUserSchema,
+    authorize: true,
+  });
+
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  const { user } = validationResult.session!;
+
+  try {
+    const updateUser = await User.findByIdAndUpdate(user?.id, params, {
+      new: true,
+    });
+
+    return {
+      success: true,
+      data: { user: JSON.parse(JSON.stringify(updateUser)) },
     };
   } catch (error) {
     return handleError(error) as ErrorResponse;
