@@ -21,7 +21,7 @@ const config = [
     "next/typescript",
     "standard",
     // "plugin:tailwindcss/recommended",
-    "prettier"
+    "prettier",
   ),
   {
     rules: {
@@ -57,6 +57,7 @@ const config = [
       ],
       "comma-dangle": "off",
     },
+    ignorePatterns: ["components/ui/**"],
   },
   {
     files: ["**/*.ts", "**/*.tsx"],
