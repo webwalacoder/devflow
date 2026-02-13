@@ -46,7 +46,7 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
   const { user } = data!;
 
   const { data: userStats } = await getUserStats({ userId: id });
-
+  console.log("USER_STATS:", userStats);
   const {
     success: userQuestionsSuccess,
     data: userQuestions,
