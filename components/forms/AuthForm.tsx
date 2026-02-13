@@ -64,7 +64,6 @@ const AuthForm = <T extends ZodType<any, any>>({
             {result?.error?.message ?? "Something went wrong"}
           </p>
         </div>,
-        { duration: Infinity },
       );
     }
   };
