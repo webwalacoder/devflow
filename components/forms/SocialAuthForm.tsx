@@ -26,7 +26,7 @@ const SocialAuthForm = () => {
               ? error.message
               : "An error occurred during sign-in"}
           </p>
-        </div>
+        </div>,
       );
     }
   };
@@ -43,7 +43,7 @@ const SocialAuthForm = () => {
         <span>Log in with GitHub</span>
       </Button>
       {/* As localhost is not allowed on console.cloud.google so */}
-      {/* <Button className={buttonClass}>
+      <Button className={buttonClass} onClick={() => handleSignIn("google")}>
         <Image
           src="/icons/google.svg"
           alt="Google Logo"
@@ -52,7 +52,7 @@ const SocialAuthForm = () => {
           className="invert-colors mr-2.5 object-contain"
         />
         <span>Log in with Google</span>
-      </Button> */}
+      </Button>
     </div>
   );
 };
